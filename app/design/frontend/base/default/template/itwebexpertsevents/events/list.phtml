@@ -1,0 +1,35 @@
+<?php
+/* 
+ * @category  Event Manager Module
+ * @package   ITwebexperts_Events
+
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @link      N/A 
+ */
+?>
+<div id="events_list_messages"><?php echo $this->getMessagesBlock()->getGroupedHtml() ?></div>
+<div class="page-title">
+    <h1><?php echo Mage::helper('itwebexperts_events')->__('Events Listing') ?></h1>
+</div>
+
+<div class="events_list_view">
+    <?php foreach ($this->getCollection() as $eventsItem): ?>
+        <div id="item_<?php echo $eventsItem->getId() ?>" class="page-title">
+            <h2>
+                <a href="<?php echo $this->getItemUrl($eventsItem) ?>">
+                    <?php echo $this->escapeHtml($eventsItem->getTitle()) ?>
+                </a>
+            </h2>
+            <div class="events_item_subtitle">
+
+            </div>
+
+            <?php if ($imageUrl = $this->getImageUrl($eventsItem, 100)): ?>
+               <p><img src="<?php echo $imageUrl ?>" alt="<?php echo $this->escapeHtml($eventsItem->getTitle()); ?>" /></p>
+            <?php endif; ?>
+			
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<?php echo $this->getPager() ?>

@@ -1,0 +1,21 @@
+
+<?php
+//modify admin to have event gate and nonsequential then test
+//hide the addresses on create order in admin
+//the listing should take into account the qty for the event - http://www.dnawebagency.com/displaying-new-products-in-magento-with-pagination
+
+if(ITwebexperts_Payperrentals_Helper_Data::useEvents()){
+    ?>
+    <div id="eventContent"></div>
+    <?php
+        if(Mage::app()->getStore()->isAdmin()){
+            $show_passed = false;
+        }else{
+            $show_passed = true;
+        }
+        echo Mage::helper('itwebexperts_events')->getEventsDropdownHtml($show_passed);
+    ?>
+<div class="gateNameDiv"></div>
+<?php
+}
+?>

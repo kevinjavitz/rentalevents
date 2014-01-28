@@ -1,0 +1,139 @@
+<?php
+$_jsContainerPrefix = $this->getData('jsContainerPrefix');
+$_jsFunctionPrefix = $this->getData('jsFunctionPrefix');
+$isAdminGlobal = $this->getData('isAdminGlobal');
+$isFrontendGlobal = $this->getData('isFrontendGlobal');
+$isAdmin = $this->getData('isAdmin');
+$quoteItemId = $this->getData('quoteItemId');
+$quoteItem = $this->getData('quoteItem');
+
+$_eventInitial = Mage::getSingleton('core/session')->getData('eventInitial');
+$_gateInitial = Mage::getSingleton('core/session')->getData('gateInitial');
+
+if(isset($isAdmin) && $isAdmin == true && isset($quoteItemId) && $quoteItemId != -1):
+    $buyRequest = $quoteItem->getBuyRequest();
+    $_eventInitial = ($buyRequest->getEventId() != '') ?$buyRequest->getEventId() : (($_eventInitial)?$_eventInitial:false);
+    $_gateInitial = ($buyRequest->getGateName() != '') ? $buyRequest->getGateName() : (($_gateInitial)?$_gateInitial:false);
+endif;
+if(Mage::app()->getStore()->isAdmin()){
+    $url = Mage::helper("adminhtml")->getUrl("events_admin/adminhtml_event/setEvents/",array('form_key'=> Mage::getSingleton('core/session')->getFormKey()));
+}else{
+    $url = Mage::getUrl("events/event/setEvents/",array());
+}
+?>
+
+
+<script type="text/javascript">
+
+    varienGlobalEvents.attachEventHandler('update_initial_global_success', function(data){
+        if(typeof data.url !== "undefined"){
+            window.location = data.url;
+        }
+    });
+
+    <?php if($_eventInitial): ?>
+    selectedEventVal = '<?php echo $_eventInitial;?>';
+    <?php  else:  ?>
+    selectedEventVal = '';
+    <?php endif;?>
+
+    <?php if($_gateInitial): ?>
+    selectedGateVal = '<?php echo $_gateInitial;?>';
+    <?php  else:  ?>
+    selectedGateVal = '';
+    <?php endif;?>
+
+    function setEvents(selectedGateValue, noCalendar, isInitial){
+        <?php if(!isset($isAdminGlobal) || $isAdminGlobal == false): ?>
+        <?php if(!isset($isFrontendGlobal) || $isFrontendGlobal == false): ?>
+        var elemSerialized = $jppr('<?php echo $_jsContainerPrefix ?>').closest('form').find('*').serialize();
+        <?php else: ?>
+        var elemSerialized = $jppr('<?php echo $_jsContainerPrefix ?>').find('*').serialize();
+        <?php endif; ?>
+        <?php else: ?>
+        var elemSerialized = $jppr('<?php echo $_jsContainerPrefix ?>').find('*').serialize();
+        <?php endif; ?>
+
+        $jppr.ajax({
+            cache: false,
+            dataType: 'json',
+            type: 'post',
+            url: '<?php echo $url; ?>',
+            data: elemSerialized+'&gateInitial='+selectedGateValue,
+            beforeSend:function(){
+                $jppr('<?php echo $_jsContainerPrefix ?> .ajax-panel').html('<div class="loading"><img src="/skin/frontend/default/default/images/opc-ajax-loader.gif" alt="Loading..." /></div>');
+            },
+            success: function (data) {
+                $jppr('<?php echo $_jsContainerPrefix ?> .ajax-panel').empty();
+                $jppr('<?php echo $_jsContainerPrefix ?> .gateNameDiv').html(data.gates);
+
+                if(!noCalendar){
+                    $jppr('<?php echo $_jsContainerPrefix ?> .datePicker').remove();
+                    $jppr('<?php echo $_jsContainerPrefix ?> .datePickerDiv').prepend('<div class="datePicker"></div>');
+                    createCalendar<?php echo $_jsFunctionPrefix ?>($jppr('<?php echo $_jsContainerPrefix ?>'), new Date(data.minDate), new Date(data.maxDate));
+                    if(!isInitial){
+                        $jppr('<?php echo $_jsContainerPrefix ?> .start_date').val('');
+                        $jppr('<?php echo $_jsContainerPrefix ?> .end_date').val('');
+                        $jppr('<?php echo $_jsContainerPrefix ?> .readStartDate').val('');
+                        $jppr('<?php echo $_jsContainerPrefix ?> .readEndDate').val('');
+                    }
+
+                }
+
+                $jppr('<?php echo $_jsContainerPrefix ?> .gateName').change(function(){
+                    if($jppr('<?php echo $_jsContainerPrefix ?> .gateName').val() != selectedGateVal){
+                        selectedGateVal = $jppr('<?php echo $_jsContainerPrefix ?> .gateName').val();
+                        setEvents(selectedGateVal, true);
+                    }
+                });
+                $jppr('<?php echo $_jsContainerPrefix ?> .gateName').trigger('change');
+                <?php if(Mage::registry('current_product')): ?>
+                calculatePriceGlobal<?php echo $_jsFunctionPrefix ?>($jppr('<?php echo '#product_addtocart_form' ?>'));
+                <?php endif; ?>
+            }
+        });
+    }
+
+
+    <?php if(!isset($isAdmin) || $isAdmin == false): ?>
+    $jppr(document).ready(function () {
+    <?php endif; ?>
+
+        $jppr('<?php echo $_jsContainerPrefix ?> .eventId').change(function(){
+        if($jppr('<?php echo $_jsContainerPrefix ?> .eventId').val() != selectedEventVal){
+            setEvents(selectedGateVal, false);
+        }else{
+            setEvents(selectedGateVal, true);
+        }
+            selectedEventVal = $jppr('<?php echo $_jsContainerPrefix ?> .eventId').val();
+
+    });
+
+
+    $jppr('<?php echo $_jsContainerPrefix ?> .eventHelp').click(function(){
+        $jppr.ajax({
+            cache: false,
+            dataType: 'json',
+            type: 'post',
+            url: '<?php echo Mage::getUrl("events/event/getEventDescription/",array())?>',
+            data: 'eventId='+$jppr('<?php echo $_jsContainerPrefix ?> .eventId').val(),
+            beforeSend:function(){
+                $jppr('<?php echo $_jsContainerPrefix ?> .ajax-panel').html('<div class="loading"><img src="/skin/frontend/default/default/images/opc-ajax-loader.gif" alt="Loading..." /></div>');
+            },
+            success: function (data) {
+                $jppr('<?php echo $_jsContainerPrefix ?> .ajax-panel').empty();
+                $jppr('<?php echo $_jsContainerPrefix ?> #eventContent').html(data.eventContent);
+                contentWin = new Window({className:'magento',maximizable: false, resizable: false, hideEffect:Element.hide, showEffect:Element.show, minWidth: 10, destroyOnClose: true, onClose:function(){$jppr('<?php echo $_jsContainerPrefix ?> #eventContent').empty();}})
+                contentWin.setContent('eventContent', true, true);
+                contentWin.show();
+            }
+        });
+    });
+    if(selectedEventVal != ''){
+        $jppr('<?php echo $_jsContainerPrefix ?> .eventId').val(selectedEventVal);
+    }
+    setEvents(selectedGateVal, false, true);
+    <?php if(!isset($isAdmin) || $isAdmin == false): ?>
+    });
+    <?php endif; ?>
+</script>

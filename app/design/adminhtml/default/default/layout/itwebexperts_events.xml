@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+ * @category  Event Manager Module
+ * @package   Valuelabs_Events
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @link      N/A
+-->
+<layout>
+    <adminhtml_events_index>
+        <reference name="content">
+            <block type="itwebexperts_events/adminhtml_events" name="events" />
+        </reference>
+    </adminhtml_events_index>
+
+    <adminhtml_events_grid>
+        <block type="itwebexperts_events/adminhtml_events_grid" name="root"/>
+    </adminhtml_events_grid>
+
+    <adminhtml_events_new>
+        <update handle="adminhtml_events_edit" />
+    </adminhtml_events_new>
+
+    <adminhtml_events_edit>
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="itwebexperts_events/adminhtml_events_edit" name="events_edit" />
+        </reference>
+        <reference name="left">
+            <block type="itwebexperts_events/adminhtml_events_edit_tabs" name="events_edit_tabs">
+                <block type="itwebexperts_events/adminhtml_events_edit_tab_main" name="events_edit_tab_main" />
+                <block type="itwebexperts_events/adminhtml_events_edit_tab_content" name="events_edit_tab_content" />
+                <block type="itwebexperts_events/adminhtml_events_edit_tab_image" name="events_edit_tab_image" />
+                <action method="addTab"><name>main_section</name><block>events_edit_tab_main</block></action>
+                <action method="addTab"><name>content_section</name><block>events_edit_tab_content</block></action>
+                <action method="addTab"><name>image_section</name><block>events_edit_tab_image</block></action>
+            </block>
+        </reference>
+    </adminhtml_events_edit>
+</layout>

@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+/* 
+ * @category  Event Manager Module
+ * @package   ITwebexperts_Events
+
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @link      N/A 
+ */
+-->
+<layout version="0.1.0">
+    <default>
+        <reference name="footer_links">
+            <action method="addLink" translate="label title" module="itwebexperts_events">
+                <label>Events</label>
+                <url>events</url>
+                <title>Events</title>
+                <prepare>true</prepare>
+            </action>
+        </reference>
+		 <reference name="top.links">
+			 <action method="addLink" translate="label title" module="itwebexperts_events">
+                <label>Events</label>
+                <url>events</url>
+                <title>Events</title>
+                <prepare>true</prepare>
+            </action>
+        </reference>
+
+        <reference name="head">
+                    <action method="addJs"><script>prototype/window.js</script></action>
+                    <action method="addItem"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>
+                    <action method="addItem"><type>js_css</type><name>prototype/windows/themes/magento.css</name></action>
+        </reference>
+
+    </default>
+    <itwebexperts_events_front_index_index translate="label">
+        <label>Events Page</label>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/2columns-right.phtml</template>
+            </action>
+            <action method="setHeaderTitle" translate="title" module="itwebexperts_events">
+                <title>Site Events</title>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="itwebexperts_events/list" name="events.list" template="itwebexpertsevents/events/list.phtml">
+                <block type="page/html_pager" name="events.list.pager" as="events_list_pager" />
+            </block>
+        </reference>
+    </itwebexperts_events_front_index_index>
+
+    <itwebexperts_events_front_index_view translate="label">
+        <label>Events Item Page</label>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/2columns-right.phtml</template>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="itwebexperts_events/item" name="events.item" template="itwebexpertsevents/events/item.phtml" />
+        </reference>
+    </itwebexperts_events_front_index_view>
+</layout>

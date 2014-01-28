@@ -1,0 +1,172 @@
+<?php
+
+?>
+<?php $_htmlId      = $this->getElement()->getHtmlId() ?>
+<?php $_htmlClass   = $this->getElement()->getClass() ?>
+<?php $_htmlName    = $this->getElement()->getName() ?>
+<?php $_readonly    = $this->getElement()->getReadonly() ?>
+<?php $_storeId		= $this->getProduct()->getStoreId() ?>
+<?php $_showWebsite = 0 && !Mage::app()->isSingleStoreMode() ?>
+<?php $_priceValueValidation = $this->getPriceValidation('validate-greater-than-zero'); ?>
+
+
+<tr>
+	<td class="label"><?php echo $this->getElement()->getLabel() ?></td>
+	<td colspan="10" class="grid productevents">
+		<table cellspacing="0" class="data border" id="productevents_table">
+			<?php if ($_showWebsite): ?>
+			<col width="135" />
+			<?php endif; ?>
+			<col width="120" />
+			<col width="95" />
+			<col />
+    <col />
+    <col />
+			<thead>
+			<tr class="headings">
+				<th <?php if (!$_showWebsite): ?>style="display:none"<?php endif; ?>><?php echo Mage::helper('payperrentals')->__('Website') ?></th>
+				<th><?php echo Mage::helper('payperrentals')->__('Events') ?></th>
+				<th><?php echo Mage::helper('payperrentals')->__('Qty') ?></th>
+                <th <?php if (!$_storeId): ?>style="display:none"<?php endif; ?>>Use Default</th>
+                <th class="last"><?php echo Mage::helper('payperrentals')->__('Action') ?></th>
+			</tr>
+			</thead>
+			<tbody id="<?php echo $_htmlId ?>_container"></tbody>
+			<tfoot>
+			<tr>
+				<td <?php if (!$_showWebsite): ?>style="display:none"<?php endif; ?>></td>
+        <td colspan="10" class="a-right"><?php echo $this->getChildHtml('add_button'); ?></td>
+			</tr>
+			</tfoot>
+		</table>
+
+		<script type="text/javascript">
+			//<![CDATA[
+			var producteventsRowTemplate = '<tr>'
+					+ '<td<?php if (!$_showWebsite): ?> style="display:none"<?php endif; ?>>'
+					+ '<select class="<?php echo $_htmlClass ?>" name="<?php echo $_htmlName ?>[{{index}}][website_id]" id="productevents_row_{{index}}_website">'
+			<?php foreach ($this->getWebsites() as $_websiteId => $_info): ?>
+					+ '<option value="<?php echo $_websiteId ?>"><?php echo $this->jsQuoteEscape($this->htmlEscape($_info['name'])) ?><?php if (!empty($_info['currency'])): ?> [<?php echo $this->htmlEscape($_info['currency']) ?>]<?php endif; ?></option>'
+				<?php endforeach ?>
+					+ '</select></td>'
+                    + '<td><select class="<?php echo $_htmlClass ?> eventid required-entry" name="<?php echo $_htmlName ?>[{{index}}][eventid]" id="productevents_row_{{index}}_eventid">'
+                <?php foreach ($this->getEvents() as $_eventId=>$_eventName): ?>
+                + '<option value="<?php echo $_eventId ?>"><?php echo $this->jsQuoteEscape($this->htmlEscape($_eventName)) ?></option>'
+                <?php endforeach ?>
+                + '</select></td>'
+                + '<td class="nobr"><input type="text" size="3" class="required-entry" name="<?php echo $_htmlName ?>[{{index}}][eventqty]" id="productevents_row_{{index}}_eventqty"/></td>'
+                + '<td <?php if (!$_storeId): ?>style="display:none"<?php endif; ?> class="nobr">'
+                    + '<input type="checkbox" name="<?php echo $_htmlName ?>[{{index}}][use_default_value]" id="productevents_row_{{index}}_use_default_value"/> </td>'
+					+ '<td class="last"><input type="hidden" name="<?php echo $_htmlName ?>[{{index}}][delete]" class="delete" value="" id="productevents_row_{{index}}_delete" />'
+					+ '<button title="<?php echo Mage::helper('catalog')->__("Delete Tier") ?>" type="button" class="scalable delete icon-btn delete-product-option" id="productevents_row_{{index}}_delete_button" onclick="return producteventsControl.deleteItem(event);">'
+					+ '<span><span><span><?php echo Mage::helper('catalog')->__("Delete") ?></span></span></span></button></td>'
+					+ '</tr>';
+
+			var producteventsControl = {
+				template: new Template(producteventsRowTemplate, new RegExp('(^|.|\\r|\\n)({{\\s*(\\w+)\\s*}})', "")),
+				itemsCount: 0,
+                defaultStoreId:<?php echo $_storeId;?>,
+				addItem : function () {
+				<?php if ($_readonly): ?>
+					if (arguments.length < 4) {
+						return;
+					}
+					<?php endif; ?>
+					var data = {
+						website_id: '<?php echo $this->getDefaultWebsite() ?>',
+						eventid: '',
+						eventqty: '0',
+
+						store_id:'<?php echo $_storeId; ?>',
+						readOnly: false,
+						index: this.itemsCount++
+					};
+
+					if(arguments.length >= 3) {
+						data.website_id = arguments[0];
+						data.eventid      = arguments[1];
+						data.eventqty        = arguments[2];
+
+                        data.store_id      = arguments[3];
+					}
+					if (arguments.length == 5) {
+						data.readOnly = arguments[4];
+					}
+
+					Element.insert($('<?php echo $_htmlId ?>_container'), {
+						bottom : this.template.evaluate(data)
+					});
+					$('productevents_row_' + data.index + '_eventid').value = data.eventid;
+					$('productevents_row_' + data.index + '_eventqty').value = data.eventqty;
+
+					$('productevents_row_' + data.index + '_website').value    = data.website_id;
+
+                    $('productevents_row_'+data.index+'_use_default_value').setValue(data.store_id == 0);
+                    if(data.store_id && (typeof arguments[5] == 'undefined')){
+                        $($('productevents_row_'+data.index+'_use_default_value').parentNode).style.visibility='hidden';
+                    }
+
+                    $('productevents_row_' + data.index + '_use_default_value').onclick = function () {
+                        if (this.checked) {
+                            $(this.parentNode.parentNode).select('input', 'select', 'button')
+                                .each(producteventsControl.disableElement);
+                        } else {
+                            /*$(this.parentNode.parentNode).select('input', 'select', 'button')
+                             .each(producteventsControl.enableElement);*/
+                        }
+                    };
+
+                    if(data.store_id == '0' && parseInt(this.defaultStoreId)){
+                        $($('productevents_row_'+data.index+'_use_default_value').parentNode.parentNode)
+                                .select('input', 'select', 'button')
+                                .each(producteventsControl.disableElement);
+
+                    }
+
+				<?php if ($_showWebsite):?>
+					var wss = $('productevents_row_' + data.index + '_website');
+					var txt = wss.options[wss.selectedIndex].text;
+
+					wss.insert({after:'<span class="website-name">' + txt + '</span>'});
+					wss.hide();
+					<?php endif;?>
+
+					if (data.readOnly == '1') {
+						['website', 'eventid', 'eventqty', 'delete'].each(function(idx){
+							$('productevents_row_'+data.index+'_'+idx).disabled = true;
+						});
+						$('productevents_row_'+data.index+'_delete_button').hide();
+					}
+
+				<?php if ($_readonly): ?>
+					$('<?php echo $_htmlId ?>_container').select('input', 'select').each(this.disableElement);
+					$('<?php echo $_htmlId ?>_container').up('table').select('button').each(this.disableElement);
+					<?php else: ?>
+					$('<?php echo $_htmlId ?>_container').select('input', 'select').each(function(el){ Event.observe(el, 'change', el.setHasChanges.bind(el)); });
+					<?php endif; ?>
+				},
+				disableElement: function(el) {
+					el.disabled = true;
+					el.addClassName('disabled');
+				},
+				deleteItem: function(event) {
+					var tr = Event.findElement(event, 'tr');
+					if (tr) {
+						Element.select(tr, '.delete').each(function(elem){elem.value='1'});
+						Element.select(tr, ['input', 'select']).each(function(elem){elem.hide()});
+						Element.remove(tr);
+						//Element.addClassName(tr, 'no-display template');
+					}
+					return false;
+				}
+			};
+			<?php foreach ($this->getValues() as $_item): ?>
+    producteventsControl.addItem('<?php echo $_item['website_id'] ?>', '<?php echo $_item['event_id']; ?>', '<?php echo $_item['qty']; ?>', '<?php echo $_item['store_id'] ?>', <?php echo (int)!empty($_item['readonly'])?>);
+				<?php endforeach; ?>
+			<?php if ($_readonly): ?>
+			$('<?php echo $_htmlId ?>_container').up('table').select('button')
+					.each(producteventsControl.disableElement);
+				<?php endif; ?>
+			//]]>
+		</script>
+	</td></tr>
