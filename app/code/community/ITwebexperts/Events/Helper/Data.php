@@ -23,6 +23,18 @@ class ITwebexperts_Events_Helper_Data extends Mage_Core_Helper_Data
     const XML_PATH_ITEMS_PER_PAGE     = 'events/view/items_per_page';
 
     /**
+     *
+     */
+    const XML_PATH_USE_EVENTS = 'events/global_calendar/use_events';
+
+    /**
+     *
+     */
+    const XML_PATH_USE_EVENT_DATES = 'events/global_calendar/use_event_dates';
+
+    const XML_PATH_HOUR_PASS_DAY = 'events/global_calendar/hour_to_pass_day';
+
+    /**
      * Path to store config where count of days while events is still recently added is stored
      *
      * @var string
@@ -65,6 +77,45 @@ class ITwebexperts_Events_Helper_Data extends Mage_Core_Helper_Data
     }
 
     /**
+     * Function to check if events is enabled
+     * @return bool
+     */
+    public static function useEvents()
+    {
+        if (Mage::getStoreConfig(self::XML_PATH_USE_EVENTS) != 0) {
+            return true;
+        }
+        return false;
+    }
+    public static function hourPassDay($minDate)
+    {
+        $minDate = strtotime($minDate);
+        if(Mage::getStoreConfig(self::XML_PATH_HOUR_PASS_DAY) != ''){
+            $nextHour = strtotime(date('Y-m-d', Mage::getModel('core/date')->timestamp(time())) . Mage::getStoreConfig(self::XML_PATH_HOUR_PASS_DAY));
+            $curTime = Mage::getModel('core/date')->timestamp(time());
+            if($minDate < $curTime){
+                $minDate = $curTime;
+            }
+            if ($curTime > $nextHour) {
+                $minDate = strtotime('+1 day', $minDate);
+            }
+        }
+        return date('Y-m-d', $minDate);
+    }
+
+    /**
+     * Function to check if event dates is enabled
+     * @return bool
+     */
+    public static function useEventDates()
+    {
+        if (Mage::getStoreConfig(self::XML_PATH_USE_EVENT_DATES) != 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Return difference in days while events is recently added
      *
      * @param integer|string|Mage_Core_Model_Store $store
@@ -93,12 +144,12 @@ class ITwebexperts_Events_Helper_Data extends Mage_Core_Helper_Data
         return $this->_eventsItemInstance;
     }
 
-    public function getEventsDropdownHtml($passed_date = false, $selected){
+    public function getEventsDropdownHtml($passed_date = false, $selected = 0){
         $collection = Mage::getModel('itwebexperts_events/events')->getCollection();
 
         if($passed_date){
             //$collection->addAttributeToFilter('start_date >= ?', date('Y-m-d H:i:s'));
-            $collection->addFieldToFilter ('start_date', array(
+            $collection->addFieldToFilter ('end_date', array(
                 'from' => date('Y-m-d H:i:s'),
                 'date' => true, // specifies conversion of comparison values
             ));

@@ -41,8 +41,8 @@ class ITwebexperts_Events_EventController extends Mage_Core_Controller_Front_Act
             }
             $_respHtml = array(
                 'gates' => $gates,
-                'minDate' => strtotime($minDate) * 1000,
-                'maxDate' => strtotime($maxDate) * 1000
+                'minDate' => ITwebexperts_Events_Helper_Data::hourPassDay($minDate),
+                'maxDate' => date('Y-m-d', strtotime($maxDate))
             );
         }
 

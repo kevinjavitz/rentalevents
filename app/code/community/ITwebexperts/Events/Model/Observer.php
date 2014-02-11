@@ -131,13 +131,82 @@ class ITwebexperts_Events_Model_Observer
 
     }
 
+    /**
+     * @var $_block Mage_Adminhtml_Block_Widget_Grid
+     * @return $this
+     * */
+    public function appendCustomColumns($_observer)
+    {
+        $_block = $_observer->getBlock();
+        if (!isset($_block)) {
+            return $this;
+        }
+        if ($_block->getType() == 'adminhtml/sales_order_grid') {
+            if(ITwebexperts_Events_Helper_Data::useEvents()){
+                $_block->addColumnAfter('sfo_event_name', array(
+                    'header' => Mage::helper('payperrentals')->__('Events Names'),
+                    'index' => 'event_name',
+                    'type' => 'text',
+                    'filter_index' => 'main_table.event_name',
+                ), 'shipping_name');
+
+                $_block->addColumnAfter('sfo_gate_name', array(
+                    'header' => Mage::helper('payperrentals')->__('Gate Name'),
+                    'index' => 'gate_name',
+                    'type' => 'text',
+                    'filter_index' => 'main_table.gate_name',
+                ), 'sfo_event_name');
+            }
+
+        }
+
+        return $this;
+    }
+
+    public function showDatesIsSingle($observer){
+        $result = $observer->getEvent()->getResult();
+        $_useEvents = ITwebexperts_Events_Helper_Data::useEvents();
+        $retArr = $result->getReturn();
+        if($_useEvents){
+            $retArr['bool'] = false;
+        }
+        $result->setReturn($retArr);
+
+    }
+
+    public function beforeProductListing($observer){
+        $result = $observer->getEvent()->getResult();
+        $_nonSequential = $observer->getEvent()->getNonSequential();
+        $_useEvents = ITwebexperts_Events_Helper_Data::useEvents();
+        $_additional = $result->getReturn();
+        if($_useEvents && $_nonSequential){
+            $_additional = array(
+                '_query' => array(
+                    'options' => array(
+                        'start_date' => Mage::getSingleton('core/session')->getData('startDateInitial')?Mage::getSingleton('core/session')->getData('startDateInitial'):'',
+                        'event_id' => Mage::getSingleton('core/session')->getData('eventInitial')?Mage::getSingleton('core/session')->getData('eventInitial'):'',
+                        'gate_name' => Mage::getSingleton('core/session')->getData('gateInitial')?Mage::getSingleton('core/session')->getData('gateInitial'):'',
+                        'global_dates_not' => 1,
+                        'qty' => 1
+                    ),
+                    'start_date' => Mage::getSingleton('core/session')->getData('startDateInitial')?Mage::getSingleton('core/session')->getData('startDateInitial'):'',
+                    'event_id' => Mage::getSingleton('core/session')->getData('eventInitial')?Mage::getSingleton('core/session')->getData('eventInitial'):'',
+                    'gate_name' => Mage::getSingleton('core/session')->getData('gateInitial')?Mage::getSingleton('core/session')->getData('gateInitial'):'',
+                    'global_dates_not' =>1,
+                    'qty' => 1
+                ),
+                '_escape' => true);
+        }
+        $result->setReturn($_additional);
+    }
+
     public function prepareAdvancedBefore($observer){
         $buyRequest = $observer->getEvent()->getBuyRequest();
         $product = $observer->getEvent()->getProduct();
         $resultObject = $observer->getEvent()->getResult();
         $result = '';
-        $_useEvents = ITwebexperts_Payperrentals_Helper_Data::useEvents();
-        $_useEventsWithDates = ITwebexperts_Payperrentals_Helper_Data::useEventDates();
+        $_useEvents = ITwebexperts_Events_Helper_Data::useEvents();
+        $_useEventsWithDates = ITwebexperts_Events_Helper_Data::useEventDates();
         if($_useEvents){
             if($buyRequest->getEventId()){
                 $eventId = $buyRequest->getEventId();
@@ -248,7 +317,7 @@ class ITwebexperts_Events_Model_Observer
         $Product = $observer->getEvent()->getProduct();
         $resultQty = $observer->getEvent()->getResult();
         $retQty = $resultQty->getRetQty();
-        $_useEvents = ITwebexperts_Payperrentals_Helper_Data::useEvents();
+        $_useEvents = ITwebexperts_Events_Helper_Data::useEvents();
         if($_useEvents){
             if(!is_object($Product->getCustomOption(ITwebexperts_Events_Helper_Data::EVENT_ID))){
                 if(is_object($Product->getCustomOption('info_buyRequest'))){

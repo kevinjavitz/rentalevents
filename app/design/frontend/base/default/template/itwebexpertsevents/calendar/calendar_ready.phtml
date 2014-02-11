@@ -70,7 +70,9 @@ if(Mage::app()->getStore()->isAdmin()){
                 if(!noCalendar){
                     $jppr('<?php echo $_jsContainerPrefix ?> .datePicker').remove();
                     $jppr('<?php echo $_jsContainerPrefix ?> .datePickerDiv').prepend('<div class="datePicker"></div>');
-                    createCalendar<?php echo $_jsFunctionPrefix ?>($jppr('<?php echo $_jsContainerPrefix ?>'), new Date(data.minDate), new Date(data.maxDate));
+                    $jppr('<?php echo $_jsContainerPrefix ?>').data('pprMinDate', Date.parseExact(data.minDate, 'yyyy-MM-dd'));
+                    $jppr('<?php echo $_jsContainerPrefix ?>').data('pprMaxDate', Date.parseExact(data.maxDate, 'yyyy-MM-dd'));
+                    createCalendar<?php echo $_jsFunctionPrefix ?>($jppr('<?php echo $_jsContainerPrefix ?>'), Date.parseExact(data.maxDate, 'yyyy-MM-dd'));
                     if(!isInitial){
                         $jppr('<?php echo $_jsContainerPrefix ?> .start_date').val('');
                         $jppr('<?php echo $_jsContainerPrefix ?> .end_date').val('');
@@ -100,14 +102,16 @@ if(Mage::app()->getStore()->isAdmin()){
     <?php endif; ?>
 
         $jppr('<?php echo $_jsContainerPrefix ?> .eventId').change(function(){
-        if($jppr('<?php echo $_jsContainerPrefix ?> .eventId').val() != selectedEventVal){
-            setEvents(selectedGateVal, false);
-        }else{
-            setEvents(selectedGateVal, true);
-        }
+            if($jppr('<?php echo $_jsContainerPrefix ?> .eventId').val() != selectedEventVal){
+                setEvents(selectedGateVal, false);
+            }else{
+                setEvents(selectedGateVal, true);
+            }
             selectedEventVal = $jppr('<?php echo $_jsContainerPrefix ?> .eventId').val();
 
-    });
+        });
+
+        $jppr('<?php echo $_jsContainerPrefix ?> .btn-cart').removeAttr('disabled');
 
 
     $jppr('<?php echo $_jsContainerPrefix ?> .eventHelp').click(function(){

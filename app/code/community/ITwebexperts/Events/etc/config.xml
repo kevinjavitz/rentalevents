@@ -135,7 +135,7 @@
                 <observers>
                     <itwebexperts_events11>
                         <class>itwebexperts_events/observer</class>
-                        <method>prepareAdvanced</method>
+                        <method>prepareAdvancedBefore</method>
                     </itwebexperts_events11>
                 </observers>
             </prepare_advanced_before>
@@ -155,6 +155,22 @@
                     </itwebexperts_events13>
                 </observers>
             </init_globals_prepare_advanced>
+            <before_product_listing>
+                <observers>
+                    <itwebexperts_events14>
+                        <class>itwebexperts_events/observer</class>
+                        <method>beforeProductListing</method>
+                    </itwebexperts_events14>
+                </observers>
+            </before_product_listing>
+            <show_dates_is_single>
+                <observers>
+                    <itwebexperts_events15>
+                        <class>itwebexperts_events/observer</class>
+                        <method>showDatesIsSingle</method>
+                    </itwebexperts_events15>
+                </observers>
+            </show_dates_is_single>
         </events>
     </global>
     <frontend>
@@ -195,6 +211,15 @@
     </admin>
     <adminhtml>
         <events>
+            <core_block_abstract_prepare_layout_before>
+                <observers>
+                    <payperrentals_append_custom_product_columns>
+                        <type>singleton</type>
+                        <class>itwebexperts_events/observer</class>
+                        <method>appendCustomColumns</method>
+                    </payperrentals_append_custom_product_columns>
+                </observers>
+            </core_block_abstract_prepare_layout_before>
             <adminhtml_catalog_product_edit_prepare_form>
                 <observers>
                     <itweb_observer_events>
@@ -220,6 +245,11 @@
                 <items_per_page>10</items_per_page>
                 <days_difference>3</days_difference>
             </view>
+            <global_calendar>
+                <hour_to_pass_day>17:00</hour_to_pass_day>
+                <use_events>0</use_events>
+                <use_event_dates>0</use_event_dates>
+            </global_calendar>
         </events>
     </default>
 </config>
