@@ -36,6 +36,9 @@ class ITwebexperts_Events_Model_Observer
     }
 
     public function calendarNewelements($observer){
+        if(!ITwebexperts_Events_Helper_Data::useEvents()){
+            return $this;
+        }
         $returnObj = $observer->getEvent()->getResult();
         $templateNewElements = 'itwebexpertsevents/calendar/new_elements.phtml';
 
@@ -49,6 +52,9 @@ class ITwebexperts_Events_Model_Observer
     }
 
     public function calendarStyles($observer){
+        if(!ITwebexperts_Events_Helper_Data::useEvents()){
+            return $this;
+        }
         $returnObj = $observer->getEvent()->getResult();
         //$return = $returnObj->getReturn();
         $templateStyles = 'itwebexpertsevents/calendar/styles.phtml';
@@ -138,7 +144,7 @@ class ITwebexperts_Events_Model_Observer
     public function appendCustomColumns($_observer)
     {
         $_block = $_observer->getBlock();
-        if (!isset($_block)) {
+        if (!isset($_block) || !(ITwebexperts_Events_Helper_Data::useEvents())) {
             return $this;
         }
         if ($_block->getType() == 'adminhtml/sales_order_grid') {
@@ -263,6 +269,9 @@ class ITwebexperts_Events_Model_Observer
     }
 
     public function calendarReady($observer){
+        if(!ITwebexperts_Events_Helper_Data::useEvents()){
+            return $this;
+        }
         $returnObj = $observer->getEvent()->getResult();
 
         $_jsContainerPrefix =  $observer->getEvent()->getJsContainerPrefix();
@@ -293,6 +302,9 @@ class ITwebexperts_Events_Model_Observer
     }
 
     public function optionsGridNames($observer){
+        if(!ITwebexperts_Events_Helper_Data::useEvents()){
+            return $this;
+        }
         $returnObj = $observer->getEvent()->getResult();
         $return = '';
         $return .= '<th class="no-link">'. Mage::helper('itwebexperts_events')->__('Event'). '</th>';
@@ -300,6 +312,9 @@ class ITwebexperts_Events_Model_Observer
         $returnObj->setReturn($return);
     }
     public function optionsGrid($observer){
+        if(!ITwebexperts_Events_Helper_Data::useEvents()){
+            return $this;
+        }
         $returnObj = $observer->getEvent()->getResult();
         $_item = $observer->getEvent()->getItem();
         $return = '';

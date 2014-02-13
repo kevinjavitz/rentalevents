@@ -1,16 +1,19 @@
 
 <style type="text/css">
+    <?php if(ITwebexperts_Events_Helper_Data::useEvents()): ?>
     .icon1 {
         width: 15px;
         height: 15px;
-        background-image: url("/homet/skin/frontend/base/default/itwebexperts_payperrentals/images/help.png");
+        background-image: url("/skin/frontend/base/default/itwebexperts_payperrentals/images/help.png");
         vertical-align: bottom;
         cursor: pointer;
     }
+
     .timeSelector{
         display: none;
     }
     .vertical-nav .dateView{
         width:120% !important;
     }
+    <?php endif; ?>
 </style>
