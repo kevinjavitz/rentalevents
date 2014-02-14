@@ -330,6 +330,9 @@ class ITwebexperts_Events_Model_Observer
 
     public function afterGetquantity($observer){
         $Product = $observer->getEvent()->getProduct();
+        if(!is_object($Product)){
+            $Product = Mage::getModel('catalog/product')->load($Product);
+        }
         $resultQty = $observer->getEvent()->getResult();
         $retQty = $resultQty->getRetQty();
         $_useEvents = ITwebexperts_Events_Helper_Data::useEvents();
