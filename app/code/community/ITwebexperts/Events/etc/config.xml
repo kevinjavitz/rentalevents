@@ -213,11 +213,11 @@
         <events>
             <core_block_abstract_prepare_layout_before>
                 <observers>
-                    <payperrentals_append_custom_product_columns>
+                    <events_append_custom_product_columns>
                         <type>singleton</type>
                         <class>itwebexperts_events/observer</class>
                         <method>appendCustomColumns</method>
-                    </payperrentals_append_custom_product_columns>
+                    </events_append_custom_product_columns>
                 </observers>
             </core_block_abstract_prepare_layout_before>
             <adminhtml_catalog_product_edit_prepare_form>
